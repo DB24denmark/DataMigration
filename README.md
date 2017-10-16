@@ -7,7 +7,7 @@ REQUIREMENTS
        - https://blogs.msdn.microsoft.com/datamigration/2016/10/25/data-migration-assistant-configuration-settings/
 
 DESCRIPTION
-The data migration consist of the 2 PowerShell files and 1 CSV file containen a server list 
+The data migration consist of the 2 PowerShell files and 1 CSV file contains a server/instance list 
 
  - RunMigration.ps1
  - DataMigration.ps1
