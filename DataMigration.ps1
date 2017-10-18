@@ -9,7 +9,8 @@
   [ValidateSet("SqlServer2016","AzureSqlDatabase")]
   [string] $Target,
   [ValidateSet("JSON","CSV","All")]
-  [string]$output
+  [string]$output,
+  [string] $ErrorReport
 )
 
 <#
@@ -46,6 +47,8 @@
 
 Clear-Host
 
+$Global:file = $ErrorReport
+
 #region Verify that Microsoft Data Migration Tool are installed
 Function Is-Installed
 {
@@ -58,12 +61,15 @@ Function Is-Installed
   }
   catch
   {
-    $_ | Out-File $ResultOutputPath + "Scripterrors.txt"
+    $message = "`r`n$_"
+    Add-Content $Global:file $message 
   }
   
   if (!($FullName))
   {
     Write-Host "Data Migration Tool not found on host $Env:Computername!" -ForegroundColor DarkRed -BackgroundColor Yellow
+    $message = "`r`nData Migration Tool not found on host $Env:Computername!"
+    Add-Content $Global:file $message
     break;
   }
 
@@ -79,13 +85,47 @@ Function Is-Installed
 Function GetDatabasesOnInstance([string] $SQLInstance)
 {
 
-  if (!(Get-module SQLPS))
+  $message = "`r`nStart processing SQL Instance $SQLInstance"
+  Add-Content $Global:file $message
+
+  if (!(Get-module -ListAvailable -name SQLPS))
   {
-    Import-Module SQLPS -Force
+    try 
+    { 
+      #Write-Host "Module SQLPS are not installed!" -ForegroundColor Red
+      Import-Module SQLPS -Force -ErrorAction stop
+    } 
+    catch
+    {
+      $message = "`r`nModule SQLPS couldn't be installed!"
+      $message = $message + "`r`n$_"
+      Add-Content $Global:file $message
+
+      break;
+    }
   }
 
   $srv = New-Object 'Microsoft.SqlServer.Management.SMO.Server' $SQLInstance
   $mydatabases = $srv.Databases | where ID -GT 4 | select name 
+
+  if ($mydatabases.Count -eq 0)
+  {
+     #Write-Host "No databases could be found in SQL Instance $SQLInstance" -ForegroundColor Red
+     $message = "`r`nNo databases could be found in SQL Instance $SQLInstance"
+     Add-Content $Global:file $message
+  } else {
+
+     foreach ($x in $mydatabases)
+     {
+       $list += "`r`n" + $x.Name.ToString()
+     }
+
+     $list += "`r`n"
+
+     $message =  "`r`nThese databases $list will be assessed"
+     Add-Content $Global:file $message
+
+  }
   
   return $mydatabases
 }
@@ -113,52 +153,59 @@ Function DatabasesArray([string]$SQLInstance)
 }
 #endregion Build database Array
 
-
 $WorkDir = Is-Installed
 
 $DatabasesArray = DatabasesArray $SQLInstance
 
-$SQLInstance = $SQLInstance.Replace("\", "_")
-
-switch ($output)
+if ($DatabasesArray.Count -gt 0)
 {
-  "JSON"
-  {
-    $ArgList = @(
-      '/AssessmentName="'+ $ProjectName +'" ',
-      '/AssessmentDatabases='+ $DatabasesArray ,
-      '/AssessmentEvaluateCompatibilityIssues',
-      '/AssessmentTargetPlatform='+ $Target , 
-      '/AssessmentOverwriteResult ',
-      '/AssessmentResultJson="' + $ResultOutputPath + $SQLInstance + "_" + $Target +'.json" '
-    )
-  }
+
+    $SQLInstance = $SQLInstance.Replace("\", "_")
+
+    switch ($output)
+    {
+      "JSON"
+      {
+        $ArgList = @(
+          '/AssessmentName="'+ $ProjectName +'" ',
+          '/AssessmentDatabases='+ $DatabasesArray ,
+          '/AssessmentEvaluateCompatibilityIssues',
+          '/AssessmentTargetPlatform='+ $Target , 
+          '/AssessmentOverwriteResult ',
+          '/AssessmentResultJson="' + $ResultOutputPath + $SQLInstance + "_" + $Target +'.json" '
+        )
+      }
   
-  "CSV"
-  {
-    $ArgList = @(
-      '/AssessmentName="'+ $ProjectName +'" ',
-      '/AssessmentDatabases='+ $DatabasesArray ,
-      '/AssessmentEvaluateCompatibilityIssues',
-      '/AssessmentTargetPlatform='+ $Target , 
-      '/AssessmentOverwriteResult ',
-      '/AssessmentResultCsv="' + $ResultOutputPath + $SQLInstance + "_" + $Target + '.csv" '
-    )
-  }  
-  "All"
-  {
-    $ArgList = @(
-      '/AssessmentName="'+ $ProjectName +'" ',
-      '/AssessmentDatabases='+ $DatabasesArray ,
-      '/AssessmentEvaluateCompatibilityIssues',
-      '/AssessmentTargetPlatform='+ $Target , 
-      '/AssessmentOverwriteResult ',
-      '/AssessmentResultCsv="' + $ResultOutputPath + $SQLInstance + "_" + $Target + '.csv" ',
-      '/AssessmentResultJson="' + $ResultOutputPath + $SQLInstance + "_" + $Target +'.json" '
-    )
-  }
+      "CSV"
+      {
+        $ArgList = @(
+          '/AssessmentName="'+ $ProjectName +'" ',
+          '/AssessmentDatabases='+ $DatabasesArray ,
+          '/AssessmentEvaluateCompatibilityIssues',
+          '/AssessmentTargetPlatform='+ $Target , 
+          '/AssessmentOverwriteResult ',
+          '/AssessmentResultCsv="' + $ResultOutputPath + $SQLInstance + "_" + $Target + '.csv" '
+        )
+      }  
+      "All"
+      {
+        $ArgList = @(
+          '/AssessmentName="'+ $ProjectName +'" ',
+          '/AssessmentDatabases='+ $DatabasesArray ,
+          '/AssessmentEvaluateCompatibilityIssues',
+          '/AssessmentTargetPlatform='+ $Target , 
+          '/AssessmentOverwriteResult ',
+          '/AssessmentResultCsv="' + $ResultOutputPath + $SQLInstance + "_" + $Target + '.csv" ',
+          '/AssessmentResultJson="' + $ResultOutputPath + $SQLInstance + "_" + $Target +'.json" '
+        )
+      }
+
+    }
+
+
+    Start-Process "dmacmd.exe" -ArgumentList $ArgList -WorkingDirectory $WorkDir
 
 }
 
-
-Start-Process "dmacmd.exe" -ArgumentList $ArgList -WorkingDirectory $WorkDir
+$message = "SQL Instance $SQLInstance has been proccessed"
+Add-Content $Global:file $message

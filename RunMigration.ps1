@@ -6,10 +6,13 @@
   [string] $SQLInstanceListLocation,
   [Parameter(Mandatory=$true)]
   [string] $ResultOutputPath,
+  [Parameter(Mandatory=$true)]
   [ValidateSet("JSON","CSV","ALL")]
   [string] $OutputFormat,
+  [Parameter(Mandatory=$true)]
   [ValidateSet("SqlServer2016","AzureSqlDatabase","Both")]
   [string] $Target,
+  [Parameter(Mandatory=$true)]
   [int] $MaxTreads = 4
 )
 
@@ -50,7 +53,10 @@
 
 Clear-Host
 
-$debug = $false
+#Build process file
+$runTime = Get-Date -Format "yyyyMMdd-HHmm"
+$Global:file = $ResultOutputPath + "ScriptErrors_"+ $runTime +".txt"
+New-Item $Global:file -ItemType file -Force
 
 $MyDir = Get-Location
 
@@ -62,7 +68,7 @@ Function CallDWM ($Target, $SQLInstanceListLocation, $ProjectName, $ResultOutput
      Import-Csv $SQLInstanceListLocation | ForEach-Object{
 
                $SQLInstance = $_.Server
-               $cmd = ".\DataMigration.ps1 -ProjectName '$ProjectName' -SQLInstance '$SQLInstance' -ResultOutputPath '$ResultOutputPath' -Target '$Target' -Output '$OutputFormat' -ErrorAction SilentlyContinue"
+               $cmd = ".\DataMigration.ps1 -ProjectName '$ProjectName' -SQLInstance '$SQLInstance' -ResultOutputPath '$ResultOutputPath' -Target '$Target' -Output '$OutputFormat' -ErrorReport '$Global:file' -ErrorAction SilentlyContinue"
                
                Invoke-Expression $cmd
 
@@ -83,7 +89,7 @@ switch ($Target)
     "SqlServer2016" 
     {      
 
-      CallDWM "SqlServer2016" $SQLInstanceListLocation $ProjectName $ResultOutputPath $OutputFormat $MaxTreads
+      CallDWM "SqlServer2016" $SQLInstanceListLocation $ProjectName $ResultOutputPath $OutputFormat $MaxTreads 
 
     }
 
