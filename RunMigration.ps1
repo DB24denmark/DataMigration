@@ -64,6 +64,7 @@ If ($PSVersionTable.PSVersion.Major -lt 5)
 
    $message = "PowerShell version is "+ $PSVersionTable.PSVersion.Major +" upgrade to version 5+"
    Add-Content $Global:file $message
+   break;
 }
 
 $MyDir = Get-Location
