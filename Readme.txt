@@ -1,4 +1,5 @@
 REQUIREMENTS
+     PowerShell Version +5.0
      MS Data Migration Assistant installed
        - https://www.microsoft.com/en-us/download/confirmation.aspx?id=53595
        - https://blogs.msdn.microsoft.com/datamigration/2016/10/25/data-migration-assistant-configuration-settings/
