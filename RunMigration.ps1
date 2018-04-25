@@ -58,8 +58,16 @@ $runTime = Get-Date -Format "yyyyMMdd-HHmm"
 $Global:file = $ResultOutputPath + "ScriptErrors_"+ $runTime +".txt"
 New-Item $Global:file -ItemType file -Force
 
-$MyDir = Get-Location
+If ($PSVersionTable.PSVersion.Major -lt 5) 
+{
+   Write-Host "Please ensure that PowerShell version are 5+" -ForegroundColor Red -BackgroundColor Yellow
 
+   $message = "PowerShell version is "+ $PSVersionTable.PSVersion.Major +" upgrade to version 5+"
+   Add-Content $Global:file $message
+   break;
+}
+
+$MyDir = Get-Location
 $no = 0
 
 Function CallDWM ($Target, $SQLInstanceListLocation, $ProjectName, $ResultOutputPath, $OutputFormat, $MaxTreads)
