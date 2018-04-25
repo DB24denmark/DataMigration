@@ -105,8 +105,18 @@ Function GetDatabasesOnInstance([string] $SQLInstance)
     }
   }
 
-  $srv = New-Object 'Microsoft.SqlServer.Management.SMO.Server' $SQLInstance
-  $mydatabases = $srv.Databases | where ID -GT 4 | select name 
+  try 
+  {
+    $srv = New-Object 'Microsoft.SqlServer.Management.SMO.Server' $SQLInstance
+    $mydatabases = $srv.Databases | where ID -GT 4 | select name
+  } 
+  catch 
+  {
+    $message = $_.Exception.message + ' -  ' + $SQLInstance
+    Add-Content $Global:file $message
+
+    break;
+  }
 
   if ($mydatabases.Count -eq 0)
   {
