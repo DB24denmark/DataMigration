@@ -20,11 +20,11 @@ The "exeute" file are RunMigration.ps1 it takes the following parameters
        - Projectname
        - SQLInstanceListLocation  "CSV file"
        - ResultOutputPath         "C:\Result\
-       - OutputFormat             Save result as Json, CSV or both
-       - Target                   "SqlServer2016", "AzureSqlDatabase", "Both"
+       - OutputFormat             Save result as Json, CSV or All
+       - Target                   "SqlServer2016","SqlServerWindows2017","AzureSqlDatabase","ManagedSqlServer","All_4"
        - MaxTreads                "Number of simultaneous analyzing SQL Instances - reduce CPU and memory utilizing"
 
 
 SAMPLE
-.\RunMigration.ps1 -ProjectName "testing" -SQLInstanceListLocation "C:\temp\myServers.csv" -ResultOutputPath "C:\temp\" -OutputFormat "JSON" -Target Both -MaxTreads 2
+.\RunMigration.ps1 -ProjectName "SolidQMigration" -SQLInstanceListLocation "C:\temp\myServers.csv" -ResultOutputPath "C:\result\" -OutputFormat "Choose from List" -Target "Choose from List" -MaxTreads 1
 
