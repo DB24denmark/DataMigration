@@ -33,5 +33,5 @@ The "exeute" file are RunMigration.ps1 it takes the following parameters
 Script will add a Status/Error file in the ResultOutputPath folder for debug
 
 SAMPLE
-.\RunMigration.ps1 -ProjectName "SolidQMigration" -SQLInstanceListLocation "C:\temp\myServers.csv" -ResultOutputPath "C:\result\" -OutputFormat "JSON" -Target "Choose from List" -MaxTreads 1
+.\RunMigration.ps1 -ProjectName "SolidQMigration" -SQLInstanceListLocation "C:\temp\myServers.csv" -ResultOutputPath "C:\result\\" -OutputFormat "JSON" -Target "Choose from List" -MaxTreads 1
 
