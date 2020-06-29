@@ -27,7 +27,7 @@ The "exeute" file are RunMigration.ps1 it takes the following parameters
  - SQLInstanceListLocation  "CSV file"
  - ResultOutputPath         "C:\Result\
  - OutputFormat             Save result as JSON
- - Target                   SqlServer2016,SqlServerWindows2017,SqlServerWindows2019,AzureSqlDatabase,ManagedSqlServer,All_4
+ - Target                   SqlServer2016,SqlServerWindows2017,SqlServerWindows2019,AzureSqlDatabase,ManagedSqlServer,All_5
  - MaxTreads                "Number of simultaneous analyzing SQL Instances - reduce CPU and memory utilizing"
 
 Script will add a Status/Error file in the ResultOutputPath folder for debug
