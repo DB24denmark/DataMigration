@@ -16,10 +16,10 @@ The data migration consist of the 2 PowerShell files and 1 CSV file contains a s
  - DataMigration.ps1
  - myServers.csv (Sample)
  
-Place the 2 .ps1 files in the same folder (C:\SolidQ\).
-Set folder to C:\SolidQ\
+Place the 2 .ps1 files in the same folder (C:\Lucient\).
+Set folder to C:\Lucient\
 
-To run the solution use ISE or PS Commandline
+To run the solution use ISE or PS Commandline, with elevated permissions.
 
 The "exeute" file are RunMigration.ps1 it takes the following parameters
 
