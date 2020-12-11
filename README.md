@@ -16,8 +16,8 @@ The data migration consist of the 2 PowerShell files and 1 CSV file contains a s
  - DataMigration.ps1
  - myServers.csv (Sample)
  
-Place the 2 .ps1 files in the same folder (C:\Lucient\).
-Set folder to C:\Lucient\
+Place the 2 .ps1 files in the same folder (C:\LucientDPM\).
+Set folder to C:\LucientDPM\
 
 To run the solution use ISE or PS Commandline, with elevated permissions.
 
@@ -25,7 +25,7 @@ The "exeute" file are RunMigration.ps1 it takes the following parameters
 
  - Projectname
  - SQLInstanceListLocation  "CSV file"
- - ResultOutputPath         "C:\Result\
+ - ResultOutputPath         "C:\LucientDPM\Result\
  - OutputFormat             Save result as JSON
  - Target                   SqlServer2016,SqlServerWindows2017,SqlServerWindows2019,AzureSqlDatabase,ManagedSqlServer,All_5
  - MaxTreads                "Number of simultaneous analyzing SQL Instances - reduce CPU and memory utilizing"
@@ -33,5 +33,5 @@ The "exeute" file are RunMigration.ps1 it takes the following parameters
 Script will add a Status/Error file in the ResultOutputPath folder for debug
 
 SAMPLE
-.\RunMigration.ps1 -ProjectName "SolidQMigration" -SQLInstanceListLocation "C:\temp\myServers.csv" -ResultOutputPath "C:\result\\" -OutputFormat "JSON" -Target "Choose from List" -MaxTreads 1
+.\RunMigration.ps1 -ProjectName "LucientMigration" -SQLInstanceListLocation "C:\temp\myServers.csv" -ResultOutputPath "C:\result\\" -OutputFormat "JSON" -Target "Choose from List" -MaxTreads 1
 
