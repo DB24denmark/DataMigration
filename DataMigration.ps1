@@ -111,11 +111,10 @@ Function GetDatabasesOnInstance([string] $SQLInstance)
 	catch 
 	{
 	  $flag = $false
+	  $ex = $_.Exception
 	  $message = "Failed on retieving database information from $SQLInstance `n" 
-	  $message += "$_.Exception.message "
+	  $message += $ex.message
 	  WriteToLog $message
-
-	  Break;
     }
     
   } elseif (Get-module -ListAvailable -name SQLPS) 
