@@ -198,8 +198,15 @@ Function GetDbTargetVersion ([string] $mySQLInstance, [string] $myTarget)
             $ver = 15
         }
     }
-
-    $myVer = (Get-SqlInstance -ServerInstance $mySQLInstance).VersionMajor
+    try {
+        $myVer = (Get-SqlInstance -ServerInstance $mySQLInstance -ConnectionTimeout 3).VersionMajor  
+    }
+    catch {
+        $message = "ERROR - Can't connect to SQL Server instance $SQLInstance`n" 
+        WriteToLog $message        
+        Break;
+    }
+    
 
     if ($Ver -lt $myver)
     {
