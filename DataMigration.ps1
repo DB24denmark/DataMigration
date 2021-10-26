@@ -50,7 +50,7 @@ Clear-Host
 $Global:file = $ErrorReport
 
 #region Verify that Microsoft Data Migration Tool are installed
-Function Is-Installed ()
+Function IsInstalled ()
 {
 
   try
@@ -212,7 +212,7 @@ Function GetDbTargetVersion ([string] $mySQLInstance, [string] $myTarget)
     }    
 }
 
-$WorkDir = Is-Installed
+$WorkDir = IsInstalled
 
 if ($Target -in "SqlServer2016","SqlServerWindows2017","SqlServerWindows2019")
 {
