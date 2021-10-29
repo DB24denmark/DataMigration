@@ -104,7 +104,7 @@ Function GetDatabasesOnInstance([string] $SQLInstance, [string] $Target)
     try
     {
       $flag = $true
-      Write-Progress "Retrieving databases from SQL Server Instance $SQLInstance - using SQL Module ...."
+      Write-Host "Retrieving databases from SQL Server Instance $SQLInstance - using SQL Module ...."
       WriteToLog "Retrieving databases from SQL Server Instance $SQLInstance - using SQL Module ...."
       $mydatabases = Get-SqlInstance -ServerInstance $SQLInstance -ErrorAction Stop   | Get-SqlDatabase | Where-Object { $_.ID -gt 4 } | Select-Object name
     }
@@ -123,7 +123,7 @@ Function GetDatabasesOnInstance([string] $SQLInstance, [string] $Target)
 	try 
     { 
       $flag= $true    
-      Write-Progress "Retrieving databases from SQL Server Instance $SQLInstance - using SQLPS ...."
+      Write-Host "Retrieving databases from SQL Server Instance $SQLInstance - using SQLPS ...."
       WriteToLog "INFO - Retrieving databases from SQL Server Instance $SQLInstance - using SQLPS ...."
       $srv = New-Object 'Microsoft.SqlServer.Management.SMO.Server' $SQLInstance
       $mydatabases = $srv.Databases | Where-Object ID -GT 4 | Select-Object name	
@@ -140,7 +140,7 @@ Function GetDatabasesOnInstance([string] $SQLInstance, [string] $Target)
 	
   if ($mydatabases.Count -eq 0)
   {
-     Write-Progress "WARNING - No databases could be found in SQL Instance $SQLInstance"
+     Write-Host "WARNING - No databases could be found in SQL Instance $SQLInstance"
      $message = "WARNING - No databases could be found in SQL Instance $SQLInstance `n"
      WriteToLog $message	 
 	 
