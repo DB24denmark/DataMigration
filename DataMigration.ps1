@@ -93,10 +93,10 @@ Function WriteToLog($TxtBase)
 #endregion Log
 
 #region Get all userdatabases on SQL Instance
-Function GetDatabasesOnInstance([string] $SQLInstance)
+Function GetDatabasesOnInstance([string] $SQLInstance, [string] $Target)
 {
 
-  $message = "Start processing SQL Instance $SQLInstance"
+  $message = "Start processing SQL Instance $SQLInstance - target $Target "
   WriteToLog $message
     
   if (Get-module -ListAvailable -name SQLSERVER) 
@@ -164,10 +164,10 @@ Function GetDatabasesOnInstance([string] $SQLInstance)
 #endregion Get all userdatabases on SQL Instance
 
 #region Build database Array
-Function DatabasesArray([string]$SQLInstance)
+Function DatabasesArray([string]$SQLInstance, [string] $Target)
 {
 
-  $GetDatabasesOnInstance = GetDatabasesOnInstance $SQLInstance
+  $GetDatabasesOnInstance = GetDatabasesOnInstance $SQLInstance $Target 
 
   foreach ($i IN $GetDatabasesOnInstance)
   {
@@ -182,6 +182,7 @@ Function DatabasesArray([string]$SQLInstance)
 
 Function GetDbTargetVersion ([string] $mySQLInstance, [string] $myTarget)
 {
+  $control = $true
     #Validating of Instance version against requested target
     switch ($myTarget)
     {   
@@ -205,75 +206,81 @@ Function GetDbTargetVersion ([string] $mySQLInstance, [string] $myTarget)
         $message = "ERROR - Can't connect to SQL Server instance $SQLInstance`n" 
         WriteToLog $message        
         Break;
-    }
-    
+    }    
 
-    if ($Ver -lt $myver)
+    if ($Ver -le $myver)
     {
-        $message = "WARNING - Will not assess migration to a lower version of existing $SQLInstance - build $myVer`n" 
-        WriteToLog $message        
-        Break;
+        $message = "WARNING - Will not assess migration to a lower version ($myTarget) of existing SQL Instance $SQLInstance - build version $myVer`n" 
+        WriteToLog $message
+        $control = $false
     } else {
         $message = "INFO - $SQLInstance Will be assess for migration to $myTarget`n" 
         WriteToLog $message
     }    
+
+    return $control
 }
 
 $WorkDir = IsInstalled
 
+$mycontrol = $true
+
 if ($Target -in "SqlServer2016","SqlServerWindows2017","SqlServerWindows2019")
 {
-    GetDbTargetVersion $SQLInstance $Target 
+    $mycontrol = GetDbTargetVersion $SQLInstance $Target 
 }
 
-$DatabasesArray = DatabasesArray $SQLInstance
-
-if ($DatabasesArray.Count -gt 0)
+if ($mycontrol)
 {
-    $SQLInstance = $SQLInstance.Replace("\", "_")
+    $DatabasesArray = DatabasesArray $SQLInstance $Target 
 
-    switch ($output)
+    if ($DatabasesArray.Count -gt 0)
     {
-      "JSON"
-      {
-        $ArgList = @(
-          '/AssessmentName="'+ $ProjectName +'" ',
-          '/AssessmentDatabases='+ $DatabasesArray ,
-          '/AssessmentEvaluateCompatibilityIssues',
-          '/AssessmentTargetPlatform='+ $Target , 
-          '/AssessmentOverwriteResult ',
-          '/AssessmentResultJson="' + $ResultOutputPath + $SQLInstance + "_" + $Target +'.json" '
-        )
-      }
-      "CSV"
-      {
-        $ArgList = @(
-          '/AssessmentName="'+ $ProjectName +'" ',
-          '/AssessmentDatabases='+ $DatabasesArray ,
-          '/AssessmentEvaluateCompatibilityIssues',
-          '/AssessmentTargetPlatform='+ $Target , 
-          '/AssessmentOverwriteResult ',
-          '/AssessmentResultCsv="' + $ResultOutputPath + $SQLInstance + "_" + $Target + '.csv" '
-        )
-      }  
-      "All"
-      {
-        $ArgList = @(
-          '/AssessmentName="'+ $ProjectName +'" ',
-          '/AssessmentDatabases='+ $DatabasesArray ,
-          '/AssessmentEvaluateCompatibilityIssues',
-          '/AssessmentTargetPlatform='+ $Target , 
-          '/AssessmentOverwriteResult ',
-          '/AssessmentResultCsv="' + $ResultOutputPath + $SQLInstance + "_" + $Target + '.csv" ',
-          '/AssessmentResultJson="' + $ResultOutputPath + $SQLInstance + "_" + $Target +'.json" '
-        )
-      }
+        $SQLInstance = $SQLInstance.Replace("\", "_")
+
+        switch ($output)
+        {
+          "JSON"
+          {
+            $ArgList = @(
+              '/AssessmentName="'+ $ProjectName +'" ',
+              '/AssessmentDatabases='+ $DatabasesArray ,
+              '/AssessmentEvaluateCompatibilityIssues',
+              '/AssessmentTargetPlatform='+ $Target , 
+              '/AssessmentOverwriteResult ',
+              '/AssessmentResultJson="' + $ResultOutputPath + $SQLInstance + "_" + $Target +'.json" '
+            )
+          }
+          "CSV"
+          {
+            $ArgList = @(
+              '/AssessmentName="'+ $ProjectName +'" ',
+              '/AssessmentDatabases='+ $DatabasesArray ,
+              '/AssessmentEvaluateCompatibilityIssues',
+              '/AssessmentTargetPlatform='+ $Target , 
+              '/AssessmentOverwriteResult ',
+              '/AssessmentResultCsv="' + $ResultOutputPath + $SQLInstance + "_" + $Target + '.csv" '
+            )
+          }  
+          "All"
+          {
+            $ArgList = @(
+              '/AssessmentName="'+ $ProjectName +'" ',
+              '/AssessmentDatabases='+ $DatabasesArray ,
+              '/AssessmentEvaluateCompatibilityIssues',
+              '/AssessmentTargetPlatform='+ $Target , 
+              '/AssessmentOverwriteResult ',
+              '/AssessmentResultCsv="' + $ResultOutputPath + $SQLInstance + "_" + $Target + '.csv" ',
+              '/AssessmentResultJson="' + $ResultOutputPath + $SQLInstance + "_" + $Target +'.json" '
+            )
+          }
+
+        }
+
+        Start-Process "dmacmd.exe" -ArgumentList $ArgList -WorkingDirectory $WorkDir
 
     }
 
-    Start-Process "dmacmd.exe" -ArgumentList $ArgList -WorkingDirectory $WorkDir
-
+    $message = "SQL Instance $SQLInstance has been proccessed for target $Target"
+    WriteToLog $message
 }
-
-$message = "SQL Instance $SQLInstance has been proccessed"
-WriteToLog $message
