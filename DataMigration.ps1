@@ -1,4 +1,4 @@
-﻿Param
+Param
 (
   [Parameter(Mandatory=$true)]
   [string] $ProjectName = 'LucientMigration',
@@ -16,15 +16,12 @@
 <#
   .SYNOPSIS
       A powershell script to run Microsoft Data Migration tool in command mode (DmaCmd)
-
   .REQUIREMENTS
      MS Data Migration Assistant installed
        - https://www.microsoft.com/en-us/download/confirmation.aspx?id=53595
        - https://blogs.msdn.microsoft.com/datamigration/2016/10/25/data-migration-assistant-configuration-settings/
-
      Powershell module SQLPS 
       
-
   .DESCRIPTION
      Script take 5 mandatory parameters, 
        - Projectname
@@ -32,17 +29,13 @@
        - ResultOutputPath         Full path
        - Target                   Validate against SQL Server 2016/2017/2019 on Windows or in Azure SQL Azure Database or Managed Sql Server
        - Output                   Save result as JSON
-
   .NOTES
       Auther: Lucient Denmark
               
               Torben Schou (tschou@lucient.com)
               
-
   .SAMPLE
     .\DataMigration.ps1 -ProjectName "LucientMigration" -SQLInstance ".\myInstance" -ResultOutputPath "C:\result\" -Target "Choose from List" -Ouput "JSON"
-
-
 #>
 
 Clear-Host
@@ -126,7 +119,7 @@ Function GetDatabasesOnInstance([string] $SQLInstance, [string] $Target)
       Write-Host "Retrieving databases from SQL Server Instance $SQLInstance - using SQLPS ...."
       WriteToLog "INFO - Retrieving databases from SQL Server Instance $SQLInstance - using SQLPS ...."
       $srv = New-Object 'Microsoft.SqlServer.Management.SMO.Server' $SQLInstance
-      $mydatabases = $srv.Databases | Where-Object ID -GT 4 | Select-Object name	
+      $mydatabases = ($srv.Databases | Where-Object ID -GT 4).name	
     } 
     catch
     {
